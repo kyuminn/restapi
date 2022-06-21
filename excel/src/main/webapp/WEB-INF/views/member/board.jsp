@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>member list 출력</title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <style>
     table.memberList,tr,th,td {
@@ -28,5 +29,11 @@
             </tr>
         </c:forEach>
     </table>
+    <button type="button" class="excel">엑셀 다운로드</button>
 </body>
+    <script>
+        $(".excel").on("click",()=>{
+            $(location).attr('href','/member/excel');
+        })
+    </script>
 </html>

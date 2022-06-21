@@ -9,13 +9,18 @@
 <body>
 Hello page 입니당.
 <br><br>
-<button type="button" class="list">멤버 게시판</button>
+<button type="button" class="memberList">멤버 게시판</button>
+<button type="button" class="testList">test 게시판</button>
 </body>
 
 <script>
-    $(".list").on("click",()=>{
+    $(".memberList").on("click",()=>{
         //jquery page 이동!
         $(location).attr("href","/member/list")
+    })
+
+    $(".testList").on("click",()=>{
+        $(location).attr("href",'/test/list')
     })
 </script>
 </html>

@@ -1,12 +1,22 @@
 package com.example.excel.member;
 
+import com.example.excel.column.ExcelColumn;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.List;
 
 @Controller
@@ -19,7 +29,15 @@ public class MemberController {
 
     @GetMapping
     public String member1(){
-        return "member";
+
+        MemberDto memberDto = new MemberDto();
+        Field[] declaredFields = memberDto.getClass().getDeclaredFields();
+        for (Field f : declaredFields) {
+            System.out.println(f.getName());
+            System.out.println(f.getAnnotation(ExcelColumn.class).headerName());
+            System.out.println("================================================");
+        }
+        return "member/member";
     }
 
     @PostMapping
@@ -48,7 +66,7 @@ public class MemberController {
     public String board(Model model){
         List<MemberDto> memberList = memberService.getAllMember();
         model.addAttribute("list",memberList);
-        return "board";
+        return "member/board";
     }
 
     @GetMapping("/detail/{email}")
@@ -56,7 +74,7 @@ public class MemberController {
         log.info("email={}",email);
         MemberDto memberDto = memberService.findByEmail(email);
         model.addAttribute("member",memberDto);
-        return "detail";
+        return "member/detail";
     }
 
     @PostMapping("/edit")
@@ -64,6 +82,68 @@ public class MemberController {
         log.info("edit email={}", email);
         MemberDto memberDto = memberService.findByEmail(email);
         model.addAttribute("member", memberDto);
-        return "edit";
+        return "member/edit";
     }
+    // 안쓰는 걸로 바꿔야함.
+    @GetMapping("/excel")
+    public void mkExcelFile(HttpServletResponse httpServletResponse) throws IOException {
+        //excel 파일 생성
+        Workbook workbook = new SXSSFWorkbook();
+        //excel 파일 내부에 sheet 생성
+        Sheet sheet = workbook.createSheet(); //sheet 이름 넣을 수 있음..
+
+        // excel 파일에 넣을 값 가져오기
+        List<MemberDto> list = memberService.getAllMember();
+
+        // excel 파일 헤더 생성
+        int rowIndex = 0;
+        Row headerRow = sheet.createRow(rowIndex++);
+
+        // Cell 생성
+//        Cell cell1 = headerRow.createCell(0);
+//        cell1.setCellValue("이름");
+//
+//        Cell cell2 = headerRow.createCell(1);
+//        cell2.setCellValue("이메일");
+//
+//        Cell cell3 = headerRow.createCell(2);
+//        cell3.setCellValue("나이");
+
+        Field[] declaredFields = new MemberDto().getClass().getDeclaredFields();
+
+        int cellIdx = 0;
+        for (Field f : declaredFields) {
+            Cell cell = headerRow.createCell(cellIdx++);
+            cell.setCellValue(f.getDeclaredAnnotation(ExcelColumn.class).headerName());
+        }
+
+//        for(int i=0 ; i<declaredFields.length; i++){
+//            Cell cell = headerRow.createCell(i);
+//            String headerName = declaredFields[i].getDeclaredAnnotation(ExcelColumn.class).headerName();
+//            cell.setCellValue(headerName);
+//        }
+
+
+        // 데이터 넣어주기
+        for (MemberDto memberDto : list) {
+            
+            Row bodyRow = sheet.createRow(rowIndex++);
+
+            Cell bodyCell1 = bodyRow.createCell(0);
+            bodyCell1.setCellValue(memberDto.getUsername());
+
+            Cell bodyCell2 = bodyRow.createCell(1);
+            bodyCell2.setCellValue(memberDto.getEmail());
+
+            Cell bodyCell3 = bodyRow.createCell(2);
+            bodyCell3.setCellValue(memberDto.getAge());
+        }
+
+
+        httpServletResponse.setContentType("application/vnd.ms-excel");
+        httpServletResponse.setHeader("Content-Disposition",String.format("attachment;filename=%s.xlsx", "excel"));
+        workbook.write(httpServletResponse.getOutputStream()); //workbook은 HttpServletResponse의 OutPutStream을 이용하여 엑셀 내용을 출력함.
+        workbook.close();
+    }
+
 }
