@@ -12,4 +12,8 @@
     <select id="selectOne" parameterType="String" resultType="MemberDto">
         select * from member where email=#{email}
     </select>
+
+    <select id="selectMemberList" resultType="MemberDto" parameterType="MemberDto">
+        select * from member where username like '%'|| #{username} || '%'
+    </select>
 </mapper>

@@ -10,4 +10,5 @@ public interface MemberDao {
     public void insertMember(MemberDto memberDto);
     public List<MemberDto> selectAll();
     public MemberDto selectOne(String email);
+    public List<MemberDto> selectMemberList(MemberDto memberDto);
 }

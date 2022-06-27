@@ -19,6 +19,8 @@
         <!-- submit을 하면 자동으로 페이지가 reload 되므로, 페이지의 일부분만을 바꿀 때는 ajax로 데이터를 주고받아야 한다.-->
         <button type="button" class="tolist">목록으로</button>
     </form>
+
+    <div id="out">입력한 이름 출력되는 곳</div>
 </body>
 
 <script>
@@ -69,6 +71,19 @@
 
     $(".tolist").on('click',()=>{
         $(location).attr("href",'/member/list');
+    });
+
+    // 입력한 값 실시간 출력 (명함에서 활용함)
+    // jquery $(document.ready(function()){}) === $(function()) 임.
+    // html dom이 올라오면 바로 실행되는 함수
+
+    // jquery text() : getter, setter 함수 통합본.
+    $(()=>{
+        $('#username').keyup(()=>{
+            let value = $('#username').val();
+            $('#out').text(value);
+        })
     })
+
 </script>
 </html>

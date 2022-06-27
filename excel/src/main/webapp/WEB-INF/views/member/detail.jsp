@@ -20,7 +20,7 @@
 </body>
 <script>
     $(".tolist").on("click",()=>{
-        $(location).attr("href","/member/list");
+        $(location).attr("href","/member/memberList");
     });
     $(".edit").on('click',()=>{
         //popup 연습.

@@ -1,6 +1,7 @@
 package com.example.excel.member;
 
-import com.example.excel.column.ExcelColumn;
+import com.example.excel.column.HeaderColumn;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -8,16 +9,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class MemberController {
         Field[] declaredFields = memberDto.getClass().getDeclaredFields();
         for (Field f : declaredFields) {
             System.out.println(f.getName());
-            System.out.println(f.getAnnotation(ExcelColumn.class).headerName());
+            System.out.println(f.getAnnotation(HeaderColumn.class).headerName());
             System.out.println("================================================");
         }
         return "member/member";
@@ -66,7 +68,29 @@ public class MemberController {
     public String board(Model model){
         List<MemberDto> memberList = memberService.getAllMember();
         model.addAttribute("list",memberList);
+
+        model.addAttribute("json",new Gson().toJson(memberList));
+
         return "member/board";
+    }
+
+    @GetMapping("/memberList")
+    public String boardList(){
+        return "member/board";
+    }
+
+    @RequestMapping("/getList")
+    @ResponseBody
+    public List<MemberDto> test(@RequestBody MemberDto memberDto){
+        log.info("here in test method");
+        log.info("username:"+memberDto.getUsername());
+        List<MemberDto> data = memberService.getMemberList(memberDto);
+        log.info("size:{}", data.size());
+//        map으로 반환하는 경우
+//        Map<String,Object> info = new HashMap<>();
+//        List<MemberDto> memberList = memberService.getMemberList(memberDto);
+//        info.put("data", memberList);
+        return data;
     }
 
     @GetMapping("/detail/{email}")
@@ -84,7 +108,7 @@ public class MemberController {
         model.addAttribute("member", memberDto);
         return "member/edit";
     }
-    // 안쓰는 걸로 바꿔야함.
+
     @GetMapping("/excel")
     public void mkExcelFile(HttpServletResponse httpServletResponse) throws IOException {
         //excel 파일 생성
@@ -114,7 +138,7 @@ public class MemberController {
         int cellIdx = 0;
         for (Field f : declaredFields) {
             Cell cell = headerRow.createCell(cellIdx++);
-            cell.setCellValue(f.getDeclaredAnnotation(ExcelColumn.class).headerName());
+            cell.setCellValue(f.getDeclaredAnnotation(HeaderColumn.class).headerName());
         }
 
 //        for(int i=0 ; i<declaredFields.length; i++){

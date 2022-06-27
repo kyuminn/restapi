@@ -19,6 +19,10 @@ public class MemberService {
         return memberDao.selectAll();
     }
 
+    public List<MemberDto> getMemberList(MemberDto memberDto){
+        return memberDao.selectMemberList(memberDto);
+    }
+
     public MemberDto findByEmail(String email){
         return memberDao.selectOne(email);
     }

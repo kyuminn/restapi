@@ -16,7 +16,7 @@ Hello page 입니당.
 <script>
     $(".memberList").on("click",()=>{
         //jquery page 이동!
-        $(location).attr("href","/member/list")
+        $(location).attr("href","/member/memberList")
     })
 
     $(".testList").on("click",()=>{
